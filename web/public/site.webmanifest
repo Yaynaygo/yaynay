@@ -1,0 +1,13 @@
+{
+  "name": "YayNay",
+  "short_name": "YayNay",
+  "description": "Yay or nay? Call what happens next with your USDC on Arc. Non-custodial.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f3ea",
+  "theme_color": "#0e9c62",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

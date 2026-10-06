@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <style>
+    .t { fill: #fffdf8; stroke: rgba(21, 19, 28, 0.16); }
+    .y { fill: #0e9c62; stroke: #0e9c62; }
+    .n { fill: #f04a4a; stroke: #f04a4a; }
+    @media (prefers-color-scheme: dark) {
+      .t { fill: #221d2c; stroke: rgba(255, 255, 255, 0.14); }
+      .y { fill: #2fd08a; stroke: #2fd08a; }
+      .n { fill: #ff6b6b; stroke: #ff6b6b; }
+    }
+  </style>
+  <rect class="t" x="0.6" y="0.6" width="30.8" height="30.8" rx="8.6" stroke-width="1.2"/>
+  <path class="y" d="M11 5.5v21" stroke-width="1.8" stroke-linecap="round"/>
+  <rect class="y" x="7.6" y="8.5" width="6.8" height="13" rx="2" stroke-width="0"/>
+  <path class="n" d="M21 9.5v18" stroke-width="1.8" stroke-linecap="round"/>
+  <rect class="n" x="17.6" y="13.5" width="6.8" height="10" rx="2" stroke-width="0"/>
+</svg>

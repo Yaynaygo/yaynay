@@ -1,0 +1,15 @@
+# Cloudflare Pages project config (deploy from web/: npm run build && npx wrangler pages deploy).
+# Secrets are set with `npx wrangler pages secret put <NAME> --project-name yaynay-app`; see README.
+name = "yaynay-app"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-01"
+
+# Daily limits, push alerts (same database as push-worker/wrangler.toml).
+[[d1_databases]]
+binding = "DB"
+database_name = "yaynay-limits"
+database_id = "bcc2a182-746e-4cdd-81bf-b3601fc0734c"
+
+[vars]
+# Public half of the Web Push VAPID pair (the private half is a push-worker secret).
+VAPID_PUBLIC_KEY = "BONUd5WBQwc2BvR61PBFTxYFyKwbRy8mOfrNdvah6c82SKasOUuckZR_LrUEzq98NTpBUJe1u81oKWzylLdL29U"

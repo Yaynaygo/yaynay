@@ -1,0 +1,24 @@
+# YayNay
+
+> YayNay is an independent, non-custodial web interface for Polymarket prediction markets, built on the Arc network. Users fund a Polymarket account with USDC on Arc (via Circle CCTP), trade with orders signed in their own wallet, and withdraw back to Arc. YayNay charges no fee and is not affiliated with Polymarket or Circle.
+
+## How it works
+- Deposit: USDC on Arc is burned via Circle CCTP and minted on Polygon into the user's Polymarket deposit address; Polymarket's bridge converts it to pUSD.
+- Trade: orders are signed in the user's wallet and sent to Polymarket's order book with the YayNay builder code.
+- Withdraw: pUSD goes through Polymarket's bridge to USDC on Polygon and Relay delivers it to the user's Arc address; Polymarket's relayer pays Polygon gas.
+
+## Docs (in-app)
+- How it works: /#/docs/how-it-works
+- Fees: /#/docs/fees
+- Where are my funds?: /#/docs/troubleshooting
+- Security & what you sign: /#/docs/security
+- Contracts & addresses: /#/docs/contracts
+- Risk disclosure: /#/docs/risks
+- Terms: /#/docs/terms
+- Privacy: /#/docs/privacy
+
+## Contact
+- Site: https://yaynaygo.xyz
+- X: https://x.com/yaynay_app
+- Email: yaynay.go@gmail.com
+- Source: https://github.com/Yaynaygo/yaynay

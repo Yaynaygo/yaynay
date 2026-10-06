@@ -1,0 +1,26 @@
+/* 3D candle field behind the page (see components/Backdrop.tsx). */
+:root {
+  --bd3d-opacity: 0.5;
+}
+:root[data-theme='dark'] {
+  --bd3d-opacity: 0.6;
+}
+
+.backdrop3d {
+  /* Fixed behind the content so the scene stays with you as the page scrolls. */
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--bd3d-opacity);
+  /* Soften the centre column where the content sits; keep the sides lively. */
+  -webkit-mask-image: linear-gradient(to right, #000 0%, rgba(0, 0, 0, 0.55) 30%, rgba(0, 0, 0, 0.55) 70%, #000 100%);
+  mask-image: linear-gradient(to right, #000 0%, rgba(0, 0, 0, 0.55) 30%, rgba(0, 0, 0, 0.55) 70%, #000 100%);
+}
+
+.backdrop3d canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

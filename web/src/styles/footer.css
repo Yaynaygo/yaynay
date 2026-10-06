@@ -1,0 +1,73 @@
+/* ---------- Footer (ft-) ---------- */
+.ft {
+  position: relative; margin-top: 40px; padding: 56px 0 30px; font-size: 0.86rem; overflow: hidden;
+  border-top: 1px solid var(--border);
+  background:
+    radial-gradient(700px 300px at 8% 0%, color-mix(in srgb, var(--yes) 10%, transparent), transparent 70%),
+    radial-gradient(600px 280px at 92% 10%, color-mix(in srgb, var(--no) 9%, transparent), transparent 70%),
+    color-mix(in srgb, var(--surface) 78%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+
+/* Big brand band */
+.ft-band { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 40px; flex-wrap: wrap; }
+.ft-band-text { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ft-wordmark {
+  font-family: var(--font-display); font-weight: 800; letter-spacing: -0.055em; line-height: 0.92; padding-bottom: 0.08em;
+  font-size: clamp(3.4rem, 10.5vw, 8.6rem); color: var(--text); white-space: nowrap;
+}
+.ft-yay { color: var(--yes); }
+.ft-nay { color: var(--no); }
+.ft-or { color: var(--text); font-style: italic; font-weight: 700; letter-spacing: -0.03em; margin: 0 0.1em 0 0.02em; opacity: 0.88; }
+.ft-pitch { margin-top: 6px; color: var(--text-2); font-size: 1.05rem; max-width: 460px; line-height: 1.45; padding-left: 4px; }
+.ft-band-cta { display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 10px; }
+.ft-cta {
+  display: inline-flex; align-items: center; gap: 6px; padding: 12px 20px; border-radius: 999px; font-weight: 650; font-size: 0.92rem;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); transition: transform 0.12s, box-shadow 0.15s;
+}
+.ft-cta:hover { text-decoration: none; transform: translateY(-1px); box-shadow: var(--shadow); }
+.ft-cta.primary { background: var(--ink); color: var(--ink-text); border-color: var(--ink); }
+
+/* Decorative candle row */
+.ft-candles { display: block; width: 100%; height: 64px; margin: 30px 0 34px; overflow: hidden; }
+.ft-candle line { stroke-width: 1.6; stroke-linecap: round; }
+.ft-candle.up line { stroke: color-mix(in srgb, var(--yes) 55%, transparent); }
+.ft-candle.up rect { fill: color-mix(in srgb, var(--yes) 60%, transparent); }
+.ft-candle.down line { stroke: color-mix(in srgb, var(--no) 50%, transparent); }
+.ft-candle.down rect { fill: color-mix(in srgb, var(--no) 55%, transparent); }
+.ft-candle { animation: ft-breathe 4.8s ease-in-out infinite; }
+.ft-candle.last rect { fill: var(--highlight); }
+.ft-candle.last line { stroke: var(--highlight); }
+.ft-candle.last { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--highlight) 70%, transparent)); }
+@keyframes ft-breathe { 50% { opacity: 0.55; } }
+
+/* Links */
+.ft-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr)); gap: 28px; padding-top: 30px; border-top: 1px dashed var(--border-strong); }
+.ft-brand .brand { font-size: 1.35rem; }
+.ft-brand p { color: var(--text-2); margin: 12px 0 14px; line-height: 1.55; max-width: 320px; }
+.ft-col ul { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.ft-col a { color: var(--text-2); transition: color 0.15s; }
+.ft-col a:hover { color: var(--text); text-decoration: none; }
+.ft-ext { color: var(--muted); }
+.ft-socials { display: flex; gap: 14px; margin-top: 14px; }
+.ft-socials a { color: var(--text-2); font-weight: 600; }
+
+/* Legal */
+.ft-legal { border-top: 1px solid var(--border); margin-top: 32px; padding-top: 20px; color: var(--muted); font-size: 0.78rem; line-height: 1.6; display: flex; flex-direction: column; gap: 6px; }
+.ft-legal p { max-width: 900px; }
+.ft-build { margin-top: 6px; word-break: normal; }
+
+@media (max-width: 900px) {
+  .ft-grid { grid-template-columns: 1fr 1fr; }
+  .ft-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .ft { padding-top: 40px; }
+  .ft-wordmark { font-size: clamp(2.8rem, 16vw, 4.4rem); }
+  .ft-band-cta { width: 100%; }
+  .ft-cta { flex: 1; justify-content: center; }
+  .ft-candles { height: 44px; margin: 24px 0 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ft-candle { animation: none; }
+}

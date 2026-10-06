@@ -1,0 +1,29 @@
+# YayNay push checker: sends price-alert Web Pushes while every YayNay tab is closed.
+# Deploy from web/:  npx wrangler deploy -c push-worker/wrangler.toml
+name = "yaynay-push"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+# Only the cron trigger runs this Worker; it has no public URL.
+workers_dev = false
+preview_urls = false
+
+[triggers]
+crons = ["* * * * *"]
+
+# Same D1 database as the Pages project's `DB` binding (see web/schema.sql).
+# Find the id with:  npx wrangler d1 list
+[[d1_databases]]
+binding = "DB"
+database_name = "yaynay-limits"
+database_id = "bcc2a182-746e-4cdd-81bf-b3601fc0734c"
+
+[vars]
+# Contact for push services (RFC 8292 `sub`). A mailto: address or the site URL.
+VAPID_SUBJECT = "https://yaynaygo.xyz"
+# Workers Free allows 50 subrequests per invocation; raise on the Paid plan.
+SUBREQUEST_BUDGET = "45"
+
+# Secrets (never commit):
+#   npx wrangler secret put VAPID_PUBLIC_KEY  -c push-worker/wrangler.toml
+#   npx wrangler secret put VAPID_PRIVATE_KEY -c push-worker/wrangler.toml
+# Generate the pair with:  node scripts/vapid.mjs

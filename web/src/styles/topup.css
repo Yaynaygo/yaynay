@@ -1,0 +1,43 @@
+/* ---------- Top up Arc from another chain (tu-) ---------- */
+.tu-card { padding: 0; overflow: hidden; }
+.tu-summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
+.tu-summary::-webkit-details-marker { display: none; }
+.tu-summary::after { content: '+'; flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--text-2); font-weight: 600; }
+.tu-card[open] > .tu-summary::after { content: '−'; background: var(--yes-soft); color: var(--yes-ink); }
+.tu-summary:hover b { color: var(--accent); }
+.tu-summary-ico { width: 36px; height: 36px; flex-shrink: 0; border-radius: 11px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--border); color: var(--yes-ink); }
+.tu-summary-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.tu-summary-text b { font-family: var(--font-display); font-size: 1rem; letter-spacing: -0.01em; }
+.tu-summary-text small { color: var(--muted); font-size: 0.8rem; line-height: 1.45; }
+.tu-badge { flex-shrink: 0; font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); }
+
+.tu-body { display: flex; flex-direction: column; gap: 14px; padding: 4px 20px 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.tu-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; color: var(--text-2); font-size: 0.9rem; line-height: 1.5; }
+
+.tu-chains, .tu-tokens { border: none; margin: 0; padding: 0; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.tu-chains legend, .tu-tokens legend { display: block; width: 100%; padding: 0; margin-bottom: 8px; }
+.tu-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px 7px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); font-size: 0.84rem; font-weight: 600; }
+.tu-chip.small { padding: 5px 11px 5px 6px; font-size: 0.8rem; }
+.tu-chip img { width: 20px; height: 20px; border-radius: 50%; display: block; flex-shrink: 0; object-fit: cover; }
+.tu-chip.small img { width: 18px; height: 18px; }
+.tu-chip:hover:not(:disabled) { border-color: var(--accent); box-shadow: none; }
+.tu-chip.on { background: var(--yes-soft); border-color: color-mix(in srgb, var(--yes) 55%, var(--border)); color: var(--yes-ink); }
+.tu-chip:disabled { opacity: 0.6; }
+.tu-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--surface-3); flex-shrink: 0; }
+
+.tu-quote .muted { color: var(--muted); }
+.tu-err { color: var(--no-ink); }
+.tu-notes { display: flex; flex-direction: column; gap: 6px; }
+.tu-note { margin: 0; color: var(--text-2); font-size: 0.8rem; line-height: 1.5; }
+.tu-warn { margin: 0; padding: 9px 12px; border-radius: 12px; background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); font-size: 0.82rem; line-height: 1.5; }
+.tu-go { background: var(--text); color: var(--bg); font-family: var(--font-display); font-size: 1rem; border-radius: 16px; }
+.tu-go:hover:not(:disabled) { box-shadow: var(--shadow); }
+
+@media (max-width: 520px) {
+  .tu-summary { padding: 14px 16px; gap: 10px; }
+  .tu-body { padding: 14px 16px 18px; }
+  .tu-badge { display: none; }
+}
+.tu-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.tu-flow-line { margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); font-weight: 650; font-size: 0.92rem; }
+.tu-stop { align-self: center; font-size: 0.8rem; color: var(--muted); }
