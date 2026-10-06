@@ -14,6 +14,8 @@ import { clearCreds, loadCreds, saveCreds } from './lib/session'
 import { Markets } from './components/Markets'
 // Secondary pages load on first visit.
 const Portfolio = lazy(() => import('./components/Portfolio').then((m) => ({ default: m.Portfolio })))
+const Leaderboard = lazy(() => import('./components/Leaderboard').then((m) => ({ default: m.Leaderboard })))
+const Profile = lazy(() => import('./components/Portfolio').then((m) => ({ default: m.Profile })))
 const WalletPage = lazy(() => import('./components/WalletPage').then((m) => ({ default: m.WalletPage })))
 const Docs = lazy(() => import('./components/Docs').then((m) => ({ default: m.Docs })))
 // Market pages (chart, order book, trades) load on first visit and are warmed up once the app is idle.
@@ -39,7 +41,7 @@ type Theme = 'light' | 'dark'
 // main.tsx applies the saved or system theme before first paint; start from that.
 const initialTheme = (): Theme => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
 
-const TITLES: Record<string, string> = { markets: 'Markets', portfolio: 'Portfolio', wallet: 'Wallet', quests: 'Quests' }
+const TITLES: Record<string, string> = { markets: 'Markets', portfolio: 'Portfolio', wallet: 'Wallet', quests: 'Quests', profile: 'Caller profile', leaderboard: 'Leaderboard' }
 
 export default function App() {
   const { address, connector, isConnected, chain, status: accountStatus } = useAccount()
@@ -601,6 +603,9 @@ export default function App() {
             />
           )}
 
+          {route.name === 'leaderboard' && <Leaderboard polyWallet={polyWallet} />}
+          {route.name === 'profile' && <Profile key={route.wallet} wallet={route.wallet} ownWallet={polyWallet} />}
+
           {route.name === 'wallet' && (
             <WalletPage
               isConnected={isConnected}
@@ -619,6 +624,7 @@ export default function App() {
               onLink={() => linkPolymarket()}
               onPolygon={onPolygon}
               onDone={refresh}
+              initialDir={route.dir}
               oneClick={
                 tradingReady && ONE_CLICK_TRADING
                   ? { enabled: !!oneClick, validUntil: oneClick?.validUntil, busy: oneClickBusy, toggle: toggleOneClick }

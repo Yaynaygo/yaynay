@@ -18,6 +18,7 @@ export const PUSD_DECIMALS = 6
 // ---------- APIs (all public, called from the browser) ----------
 export const GAMMA_API = 'https://gamma-api.polymarket.com'
 export const DATA_API = 'https://data-api.polymarket.com'
+export const PNL_API = 'https://user-pnl-api.polymarket.com'
 export const CLOB_API = 'https://clob.polymarket.com'
 export const POLY_BRIDGE_API = 'https://bridge.polymarket.com'
 export const GEOBLOCK_API = 'https://polymarket.com/api/geoblock'

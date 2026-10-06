@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { Market, Outcome, PmEvent } from '../lib/markets'
 import { routeHref } from '../lib/router'
+import { CardNews } from './CardNews'
+import { InView } from './InView'
 import { WatchButton } from './WatchButton'
 import { cents, endsLabel, multiplier, volume } from './format'
 
@@ -44,6 +46,9 @@ export function EventCard({ event, onPick }: { event: PmEvent; onPick: (pick: Pi
               <span style={{ width: pct(single.outcomes[0].price) }} />
             </div>
           </div>
+          <InView minHeight={0} margin="200px">
+            <CardNews event={event} />
+          </InView>
           <div className="pair">
             {single.outcomes.slice(0, 2).map((o, i) => (
               <button
@@ -82,6 +87,11 @@ export function EventCard({ event, onPick }: { event: PmEvent; onPick: (pick: Pi
             </button>
           )}
         </div>
+      )}
+      {!single && (
+        <InView minHeight={0} margin="200px">
+          <CardNews event={event} />
+        </InView>
       )}
     </article>
   )

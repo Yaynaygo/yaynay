@@ -2,24 +2,32 @@ import { useEffect, useState } from 'react'
 
 // Hash routes keep the app a single static page on Cloudflare Pages while giving every view,
 // market and doc page a shareable URL and a working Back button.
-//   #/markets  #/portfolio  #/wallet  #/quests  #/docs/<page>
+//   #/markets  #/portfolio  #/wallet[?d=withdraw]  #/quests  #/docs/<page>
 //   #/market/<event-slug>?m=<market-id>&o=yes|no
+//   #/leaderboard   #/u/<polymarket-wallet>   a public, read-only caller profile
 export type Side = 'yes' | 'no'
 
 export type Route =
   | { name: 'markets' }
   | { name: 'portfolio' }
-  | { name: 'wallet' }
+  | { name: 'wallet'; dir?: 'deposit' | 'withdraw' }
   | { name: 'quests' }
+  | { name: 'leaderboard' }
   | { name: 'market'; slug: string; marketId?: string; side?: Side }
   | { name: 'docs'; page: string }
+  | { name: 'profile'; wallet: string }
 
 export function parseRoute(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#\/?/, '').split('?')
   const [head, arg] = path.split('/').filter(Boolean)
   if (head === 'portfolio') return { name: 'portfolio' }
-  if (head === 'wallet') return { name: 'wallet' }
+  if (head === 'wallet') {
+    const dir = new URLSearchParams(query).get('d')
+    return dir === 'withdraw' || dir === 'deposit' ? { name: 'wallet', dir } : { name: 'wallet' }
+  }
+  if (head === 'u' && arg && /^0x[0-9a-fA-F]{40}$/.test(arg)) return { name: 'profile', wallet: arg.toLowerCase() }
   if (head === 'quests') return { name: 'quests' }
+  if (head === 'leaderboard') return { name: 'leaderboard' }
   if (head === 'market' && arg) {
     const params = new URLSearchParams(query)
     const side = params.get('o')
@@ -45,6 +53,10 @@ export function routeHref(route: Route): string {
     }
     case 'docs':
       return `#/docs/${encodeURIComponent(route.page)}`
+    case 'wallet':
+      return route.dir ? `#/wallet?d=${route.dir}` : '#/wallet'
+    case 'profile':
+      return `#/u/${route.wallet}`
     default:
       return `#/${route.name}`
   }

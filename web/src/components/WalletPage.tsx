@@ -41,12 +41,17 @@ export function WalletPage(props: {
   onDone: (delta?: BalanceDelta) => void
   /** 1-click trading, when the feature flag is on and trading is set up. */
   oneClick?: { enabled: boolean; validUntil?: number; busy: boolean; toggle: () => void }
+  /** Tab requested by the URL (#/wallet?d=withdraw). */
+  initialDir?: Dir
 }) {
   const { address, client, polyWallet, access } = props
   // Open on the withdraw tab when a withdrawal (and no deposit) is still in flight from an earlier visit.
-  const [dir, setDir] = useState<Dir>(() =>
-    address && loadPendingWithdrawal(address) && !store.get(STORAGE.pendingDeposit) ? 'withdraw' : 'deposit',
+  const [dir, setDir] = useState<Dir>(
+    () => props.initialDir ?? (address && loadPendingWithdrawal(address) && !store.get(STORAGE.pendingDeposit) ? 'withdraw' : 'deposit'),
   )
+  useEffect(() => {
+    if (props.initialDir) setDir(props.initialDir)
+  }, [props.initialDir])
 
   const canDeposit = props.canSign && !!props.depositAddress && access === 'open'
   const canWithdraw = !!(client && polyWallet && address && access !== 'blocked')

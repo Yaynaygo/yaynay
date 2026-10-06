@@ -10,6 +10,7 @@ import { displayPrice, useLivePrices } from '../lib/liveMarket'
 import { AlertButton } from './AlertButton'
 import { EventCard, type Pick } from './EventCard'
 import { MarketTabs } from './MarketTabs'
+import { NewsCard } from './NewsCard'
 import { InView } from './InView'
 import { SmartMoney } from './SmartMoney'
 import { openPick } from '../lib/pick'
@@ -623,6 +624,9 @@ export function MarketPage(props: {
             onOutcome={onOutcome}
             onBookSeen={() => track('book_viewed', { slug: ev.slug })}
           />
+          <InView minHeight={260}>
+            <NewsCard key={ev.slug} title={ev.title} />
+          </InView>
           <InView minHeight={220}>
             <SmartMoney
               key={market.conditionId}

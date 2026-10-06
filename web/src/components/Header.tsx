@@ -12,6 +12,7 @@ const NAV: { route: Route; label: string; match: Route['name'][] }[] = [
   { route: { name: 'markets' }, label: 'Markets', match: ['markets', 'market'] },
   { route: { name: 'portfolio' }, label: 'Portfolio', match: ['portfolio'] },
   { route: { name: 'wallet' }, label: 'Wallet', match: ['wallet'] },
+  { route: { name: 'leaderboard' }, label: 'Leaders', match: ['leaderboard', 'profile'] },
   { route: { name: 'quests' }, label: 'Quests', match: ['quests'] },
   { route: { name: 'docs', page: 'how-it-works' }, label: 'Learn', match: ['docs'] },
 ]

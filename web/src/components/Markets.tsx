@@ -1,3 +1,4 @@
+import { NewsCorner } from './NewsCorner'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CATEGORIES, PAGE_SIZE, SORTS, fetchEventsBySlugs, listEventsPage, searchEventsPage, type PmEvent, type SortKey } from '../lib/markets'
 import { Pagination } from './Pagination'
@@ -122,6 +123,7 @@ export function Markets(props: {
       {props.hero && (
         <div className="hero-grid">
           {props.hero}
+          {featured.length > 0 && <NewsCorner events={featured} />}
           {featured.length > 0 ? (
             <Featured events={featured} onPick={openPick} />
           ) : (

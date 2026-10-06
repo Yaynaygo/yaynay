@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { parseSignRequest, signBuilderRequest, SignError } from './server/builderSign.ts'
 import { LIFI_UPSTREAM, quoteQuery } from './server/lifiProxy.ts'
+import { handleNews } from './server/news.ts'
 
 // Dev-only stand-ins for the Cloudflare Pages Functions in functions/api. They apply the same
 // request validation; Turnstile and the D1 daily limits only run on Cloudflare.
@@ -16,6 +17,15 @@ function devApi(env: Record<string, string>): Plugin {
         const send = (status: number, body: unknown) => {
           res.statusCode = status
           res.end(JSON.stringify(body))
+        }
+        if (req.method === 'GET' && req.url?.startsWith('/news?')) {
+          // Same handler as functions/api/news.ts, without the edge cache.
+          const headers = new Headers()
+          const site = req.headers['sec-fetch-site']
+          if (typeof site === 'string') headers.set('Sec-Fetch-Site', site)
+          const out = await handleNews(new Request(`http://${req.headers.host}/api${req.url}`, { headers }), { cache: null })
+          res.statusCode = out.status
+          return res.end(await out.text())
         }
         const origin = req.headers.origin
         const host = req.headers.host
