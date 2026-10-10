@@ -10,25 +10,25 @@ const SECONDS_PER_STORY = 6
 const EVENTS = 5
 const MIN_KEY = 'yaynay:news-corner'
 
+/** The corner starts tucked into a pill so it never covers the hero; it opens only once the user asks for it. */
 const readMin = () => {
   try {
-    return sessionStorage.getItem(MIN_KEY) === 'min'
+    return localStorage.getItem(MIN_KEY) !== 'open'
   } catch {
-    return false
+    return true
   }
 }
 const writeMin = (min: boolean) => {
   try {
-    if (min) sessionStorage.setItem(MIN_KEY, 'min')
-    else sessionStorage.removeItem(MIN_KEY)
+    localStorage.setItem(MIN_KEY, min ? 'min' : 'open')
   } catch {
-    // Storage blocked: the corner just reopens next visit.
+    // Storage blocked: the corner starts tucked away next visit.
   }
 }
 
 /**
  * A corner card on the home page whose feed scrolls on its own through the latest headlines about today's
- * busiest markets, each paired with that market's leading odds. It keeps flowing on hover; it can be tucked into a pill.
+ * busiest markets, each paired with that market's leading odds. It keeps flowing on hover. It starts as a pill and remembers whether the user opened it.
  */
 export function NewsCorner({ events }: { events: PmEvent[] }) {
   const [items, setItems] = useState<MarketHeadline[]>([])

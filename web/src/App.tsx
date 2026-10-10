@@ -485,7 +485,7 @@ export default function App() {
           {(route.name === 'markets' || route.name === 'market') && (
             <div hidden={route.name === 'market'}>
               <Markets
-                belowHero={<QuestNudge />}
+                belowHero={isConnected ? <QuestNudge /> : undefined}
                 hero={
                   client ? (
                     <section className="card hero">
@@ -540,7 +540,7 @@ export default function App() {
                   ) : (
                     <section className="card hero">
                       <div className="eyebrow accent">
-                        <span className="live-dot" /> &nbsp;Polymarket liquidity · built on Arc
+                        <span className="live-dot" /> &nbsp;Polymarket on Arc
                       </div>
                       <h1>
                         <span className="yay">Yay</span> or <span className="nay">nay</span>?
