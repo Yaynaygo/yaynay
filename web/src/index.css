@@ -174,6 +174,10 @@ main.content { flex: 1; padding: 28px 0 56px; }
 .hero .actions button { padding: 13px 22px; font-size: 0.95rem; }
 .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-top: 28px; padding: 18px; border: 1px dashed var(--border-strong); border-radius: 16px; }
 .facts .v { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent); margin-top: 4px; }
+:root:not([data-theme='dark']) .facts .v { color: var(--no-ink); }
+.facts .wide { grid-column: 1 / -1; padding-top: 12px; border-top: 1px dashed var(--border); }
+.oneclick-hint { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); padding: 2px 2px 0; }
+.oneclick-hint button.link { font-size: 0.8rem; }
 
 /* featured market */
 .featured { padding: 24px; display: flex; flex-direction: column; gap: 16px; }

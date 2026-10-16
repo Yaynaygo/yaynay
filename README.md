@@ -35,11 +35,14 @@ Arc, Circle's L1, has native USDC but no prediction market. Polymarket is the la
 |---|---|
 | 🌉 **Arc → Polymarket in ~1 min** | USDC leaves Arc through Circle CCTP V2 and lands as pUSD in your own Polymarket wallet. |
 | ↩️ **Back to Arc, no POL** | Withdraw straight to USDC on Arc. Polymarket's relayer pays the Polygon gas. |
+| ⚡ **1-click trading** | Optional. Sign once to authorize a trading-only session key, then buy and sell without a wallet pop-up. It can't withdraw, expires after 180 days, and you can turn it off at any time. |
 | 📈 **Live market pages** | Order book, prices and trades stream over WebSocket. Line or candle charts, rules and a resolution timeline. Sell from the page. |
+| 📰 **News that moves markets** | Recent headlines on every market and market card, each with how far the odds moved since the story. |
 | 🧠 **Smart money** | See which side Polymarket's top traders by profit hold, weighted by position size. |
 | 🔔 **Price alerts** | "Tell me when Yes hits 70¢", with optional push notifications even when the tab is closed. |
 | 🪙 **Top up from any chain** | ETH, USDT, DAI, BTC wrappers and Tempo stablecoins from 7 chains to USDC on Arc via LI.FI, plus EURC → USDC on Arc. |
-| 📒 **Portfolio & call history** | Live P&L on open calls, realized P&L and win rate on closed ones. |
+| 📒 **Portfolio & call history** | Value, a P&L chart (1D to all time), live P&L on open calls, realized P&L and win rate on closed ones, and a searchable activity feed. |
+| 🏆 **Leaderboard & caller profiles** | Polymarket's top traders by profit or volume, by period and category. Every wallet gets a shareable read-only profile. |
 | 🕯️ **Quests** | Optional tasks that teach the product. Just for fun: XP has no monetary value. |
 
 ## 🔁 How it works
@@ -55,6 +58,7 @@ flowchart LR
 - **Deposit.** You sign an approve and a burn on Arc (CCTP domain 26) with [Circle App Kit](https://docs.arc.io/app-kit.md). Circle's Forwarding Service mints on Polygon straight into your Polymarket deposit address, so you need no POL.
 - **Trade.** Orders are signed in your browser with `@polymarket/client` and carry the YayNay builder code. That attributes the volume to us and doesn't change your price.
 - **Withdraw.** pUSD goes gaslessly to Polymarket's bridge, then through Relay to native USDC at your Arc address.
+- **1-click trading (optional).** Your wallet signs one gasless authorization for a Polymarket session key with the CLOB scope only. The key is generated and kept in your browser and signs orders for you, so trades need no wallet pop-up. Turning it off revokes the key on-chain.
 
 ### What YayNay uses Arc for
 
@@ -68,6 +72,7 @@ flowchart LR
 - **A small server.** The only server code is a few Cloudflare Pages Functions:
   - `POST /api/session` checks a Turnstile token and sets a 12-hour HttpOnly cookie.
   - `POST /api/builder/sign` adds Polymarket's builder HMAC to an allowlist of requests your browser makes. It requires our own origin and that cookie, and writes are capped per day in D1.
+  - `GET /api/news` fetches public headlines (Google News RSS, Bing News as a fallback) and caches them at the edge for 3 minutes.
   - IPs are stored only as salted hashes and purged after 3 days.
 - **Checked top-ups.** Every LI.FI quote is verified before you sign, including the decoded calldata:
   - the recipient is your own address,
@@ -75,6 +80,7 @@ flowchart LR
   - the LI.FI contract address is pinned,
   - approvals are for the exact amount,
   - the quote has a minimum output.
+- **Session keys can only trade.** A 1-click key has the CLOB scope: it can place and cancel orders but can't withdraw or move funds, and it expires after 180 days. It lives in your browser's local storage, so anyone with access to that browser profile could trade with it until you turn it off. It is opt-in.
 - **Compliance gate.** Polymarket's geoblock check runs from your browser. Blocked regions can only browse; close-only regions can sell, claim and withdraw.
 - **Not audited yet.** See the in-app pages [Security & what you sign](https://yaynaygo.xyz/#/docs/security) and [Contracts & addresses](https://yaynaygo.xyz/#/docs/contracts).
 
@@ -130,6 +136,7 @@ npx wrangler pages deploy dist --project-name <your-project>
 |---|---|---|
 | `VITE_BUILDER_CODE` | build | bytes32 builder code (production builds fail without it) |
 | `VITE_TURNSTILE_SITE_KEY` | build | Turnstile site key (production builds fail without it) |
+| `VITE_ONE_CLICK_TRADING=1` | build, optional | shows 1-click trading (session keys). Polymarket must enable session-key management for your builder key first |
 | `VITE_GITHUB_URL`, `VITE_X_URL`, `VITE_CONTACT` | build, optional | override the footer/docs links |
 | `POLYMARKET_BUILDER_API_KEY`, `POLYMARKET_BUILDER_SECRET`, `POLYMARKET_BUILDER_PASSPHRASE` | secret | builder HMAC |
 | `SESSION_SECRET` | secret | signs the session cookie and salts IP hashes (32+ random chars) |

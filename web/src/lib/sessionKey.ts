@@ -8,6 +8,10 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import type { PolyClient } from './polyAccount'
 import { BRAND, SIGNER_URL, STORAGE } from '../config'
 
+/** Polymarket's relayer runs one action per wallet at a time; a second one is refused until the first lands. */
+export const IN_FLIGHT = /in-flight action/i
+const BUSY_MESSAGE = 'Polymarket is still processing your previous action on this wallet. Try again in about a minute.'
+
 export type StoredSessionKey = { privateKey: `0x${string}`; address: string; validUntil: number }
 
 const storageKey = STORAGE.sessionKey
@@ -51,6 +55,7 @@ export async function enableOneClickTrading(owner: PolyClient, ownerAddress: str
     return { key: stored, client: await createSessionClient(stored, wallet) }
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
+    if (IN_FLIGHT.test(message)) throw new Error(BUSY_MESSAGE)
     if (/40[13]|forbidden|unauthori|not (enabled|allowed|permitted)/i.test(message)) {
       throw new Error(
         `1-click trading is not enabled for ${BRAND.name} yet (Polymarket is still approving it). You can keep trading with wallet confirmations.`,
@@ -64,6 +69,9 @@ export async function enableOneClickTrading(owner: PolyClient, ownerAddress: str
 export async function disableOneClickTrading(owner: PolyClient, ownerAddress: string, wallet: string, key: StoredSessionKey) {
   try {
     await owner.revokeSessionKey({ address: key.address })
+  } catch (e) {
+    if (IN_FLIGHT.test(e instanceof Error ? e.message : String(e))) throw new Error(BUSY_MESSAGE)
+    throw e
   } finally {
     // Even if revocation fails, stop using the key here; it still expires on its own.
     saveSessionKey(ownerAddress, wallet, null)

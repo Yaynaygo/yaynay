@@ -1,3 +1,4 @@
+import { setBaseSizes, settleFills, usePendingFills } from '../lib/pendingFills'
 import { useEffect, useMemo, useState } from 'react'
 import { BRAND, DECIDED_PRICE } from '../config'
 import { CATEGORIES, fetchEventPage, listPositions, listTrendingEvents, peekEvent, type EventPage, type Market, type Outcome, type PmEvent, type Position } from '../lib/markets'
@@ -165,8 +166,16 @@ function YourPosition(props: {
       cancelled = true
     }
   }, [wallet, conditions, refreshKey])
+  // Buys from this session that Polymarket hasn't indexed yet.
+  const fills = usePendingFills().filter((f) => conditions.has(f.conditionId))
+  useEffect(() => {
+    if (positions === null) return
+    const sizeOf = (asset: string) => positions.find((p) => p.asset === asset)?.size ?? 0
+    setBaseSizes(sizeOf)
+    settleFills(sizeOf)
+  }, [positions, fills.length])
   const shown = (positions ?? []).filter((p) => !gone.has(p.asset) || sell[p.asset]?.step === 'done')
-  if (shown.length === 0) return null
+  if (shown.length === 0 && fills.length === 0) return null
 
   const set = (asset: string, st: SellState | null) =>
     setSell((prev) => {
@@ -219,6 +228,21 @@ function YourPosition(props: {
   return (
     <section className="card mp-position">
       <div className="eyebrow accent">Your calls here</div>
+      {fills.map((f) => (
+        <div className="pos-item pending" key={`${f.asset}-${f.at}`}>
+          <div className="pos-line">
+            <span className={`badge ${/^(no|down)$/i.test(f.outcome) ? 'no' : 'yes'}`}>{f.outcome}</span>
+            <span className="grow">
+              <span className="num">+{f.shares.toFixed(2)}</span> shares @ {cents(f.cost / f.shares)}
+              {event.markets.length > 1 && <span className="muted"> · {f.title}</span>}
+            </span>
+            <span className="num">${f.cost.toFixed(2)}</span>
+            <span className="pos-confirming" title="Filled. Polymarket's position data usually catches up within a minute.">
+              <span className="live-dot" aria-hidden="true" /> Confirming…
+            </span>
+          </div>
+        </div>
+      ))}
       {shown.map((p) => {
         const yay = !/^(no|down)$/i.test(p.outcome)
         const st = sell[p.asset]
@@ -310,6 +334,7 @@ export function MarketPage(props: {
   side?: Side
   client: PolyClient | null
   tradeClient: PolyClient | null
+  oneClick?: { enabled: boolean; busy: boolean; toggle: () => void }
   canBuy: boolean
   blocker: Blocker | null
   pusdBalance: string | null
@@ -484,6 +509,7 @@ export function MarketPage(props: {
     pick,
     client: props.client,
     tradeClient: props.tradeClient,
+    oneClick: props.oneClick,
     canBuy: props.canBuy,
     blocker: props.blocker,
     pusdBalance: props.pusdBalance,

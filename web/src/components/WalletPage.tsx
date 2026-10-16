@@ -40,7 +40,7 @@ export function WalletPage(props: {
   onPolygon: () => Promise<void>
   onDone: (delta?: BalanceDelta) => void
   /** 1-click trading, when the feature flag is on and trading is set up. */
-  oneClick?: { enabled: boolean; validUntil?: number; busy: boolean; toggle: () => void }
+  oneClick?: { enabled: boolean; validUntil?: number; busy: boolean; cooling?: boolean; toggle: () => void }
   /** Tab requested by the URL (#/wallet?d=withdraw). */
   initialDir?: Dir
 }) {
@@ -401,7 +401,7 @@ function Accounts(p: {
   address?: string
   polyWallet: string | null
   depositAddress: string | null
-  oneClick?: { enabled: boolean; validUntil?: number; busy: boolean; toggle: () => void }
+  oneClick?: { enabled: boolean; validUntil?: number; busy: boolean; cooling?: boolean; toggle: () => void }
 }) {
   return (
     <section className="card wl-accounts">
@@ -444,7 +444,7 @@ function Accounts(p: {
             <p className="wl-fineprint">{ONE_CLICK_HELP}</p>
           </div>
           <button className="subtle" disabled={p.oneClick.busy} onClick={p.oneClick.toggle}>
-            {p.oneClick.busy ? 'working…' : p.oneClick.enabled ? 'Turn off' : 'Enable'}
+            {p.oneClick.cooling ? 'Finishing… (~1 min)' : p.oneClick.busy ? 'working…' : p.oneClick.enabled ? 'Turn off' : 'Enable'}
           </button>
         </div>
       )}

@@ -51,3 +51,22 @@ export function quoteBuy(asks: Level[], amountUsd: number, fee: FeeParams): BuyQ
   const filledUsd = amountUsd - remaining
   return { shares, avgPrice: filledUsd / shares, worstPrice, fee: feeUsd, filledUsd }
 }
+
+/**
+ * The largest spend, rounded down to the cent, whose cost including Polymarket's fee fits in `balance`.
+ * The fee grows with the spend, so this searches instead of subtracting a fixed amount.
+ */
+export function maxAffordableSpend(asks: Level[], balance: number, fee: FeeParams): number {
+  const cost = (spend: number) => {
+    const q = quoteBuy(asks, spend, fee)
+    return q ? q.filledUsd + q.fee : 0
+  }
+  let lo = 0
+  let hi = Math.floor(balance * 100)
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2)
+    if (cost(mid / 100) <= balance + 1e-9) lo = mid
+    else hi = mid - 1
+  }
+  return lo / 100
+}

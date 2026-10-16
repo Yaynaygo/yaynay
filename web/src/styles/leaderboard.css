@@ -41,14 +41,18 @@
 .lb-crown { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--highlight); color: #15131c; margin-bottom: 2px; }
 
 /* Rows */
-.lb-cols, .lb-list a { display: grid; grid-template-columns: 52px minmax(0, 1fr) 190px 110px; gap: 14px; align-items: center; }
+.lb-cols, .lb-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) 190px 110px; gap: 14px; align-items: center; }
 .lb-cols { padding: 10px 8px 4px; font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .lb-cols span:nth-child(3), .lb-cols span:nth-child(4) { text-align: right; }
 .lb-list { list-style: none; margin: 0; padding: 0; }
-.lb-list li + li a { border-top: 1px solid var(--border); }
-.lb-list a { padding: 10px 8px; color: var(--text); transition: background 0.15s; }
-.lb-list a:hover { background: var(--surface-2); text-decoration: none; }
-.lb-list li.mine a { background: var(--yes-soft); border-radius: 12px; }
+.lb-list li + li .lb-row { border-top: 1px solid var(--border); }
+.lb-row { position: relative; padding: 10px 8px; color: var(--text); transition: background 0.15s; }
+.lb-row-link { color: var(--text); font-weight: 650; font-size: 0.92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.lb-row-link::after { content: ''; position: absolute; inset: 0; }
+.lb-row-link:hover { text-decoration: none; }
+.lb-x, .lb-verified { position: relative; z-index: 1; }
+.lb-row:hover { background: var(--surface-2); }
+.lb-list li.mine .lb-row { background: var(--yes-soft); border-radius: 12px; }
 .lb-rank { font-family: var(--font-mono); font-weight: 650; font-size: 0.86rem; color: var(--text-2); }
 .lb-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .lb-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -80,7 +84,7 @@
   .r1 .lb-step-val { font-size: 1.2rem; }
   .lb-step-name { font-size: 0.82rem; }
   .lb-cols { display: none; }
-  .lb-list a { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; }
+  .lb-row { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; }
   .lb-alt { display: none; }
   .lb-x { display: none; }
   .lb-bar { max-width: 90px; }

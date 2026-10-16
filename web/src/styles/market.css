@@ -142,6 +142,8 @@
 .mp-position { display: flex; flex-direction: column; gap: 10px; padding: 18px; }
 .pos-line { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 10px; align-items: center; font-size: 0.85rem; }
 .pos-line .badge { margin: 0; }
+.pos-item.pending { opacity: 0.85; }
+.pos-confirming { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--yes-ink); white-space: nowrap; }
 .pos-line .grow { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-2); }
 .pos-link { font-size: 0.85rem; font-weight: 600; }
 .pos-item { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }

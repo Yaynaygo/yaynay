@@ -34,7 +34,7 @@ import { fetchPolymarketActivity, loadLocalActivity } from './lib/activity'
 import { Quests, QuestNudge } from './components/Quests'
 import { useAlertWatcher } from './lib/alerts'
 import { usePositionWatcher } from './lib/watchers'
-import { friendlyError } from './lib/toast'
+import { friendlyError, toast } from './lib/toast'
 import { applyHint, hintSettled, makeHint, type BalanceDelta, type Hint } from './lib/balanceHint'
 
 type Theme = 'light' | 'dark'
@@ -75,6 +75,15 @@ export default function App() {
   const [needsSetup, setNeedsSetup] = useState(false)
   const [oneClick, setOneClick] = useState<{ client: PolyClient; validUntil: number; address: string } | null>(null)
   const [oneClickBusy, setOneClickBusy] = useState(false)
+  // Polymarket's relayer refuses a second wallet action while one is in flight, so after turning 1-click off
+  // (or hitting that refusal) the switch waits a minute instead of asking for a signature that would fail.
+  const [oneClickCooling, setOneClickCooling] = useState(false)
+  const coolTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const coolDown = () => {
+    setOneClickCooling(true)
+    clearTimeout(coolTimer.current)
+    coolTimer.current = setTimeout(() => setOneClickCooling(false), 60_000)
+  }
   // Price alerts and "you won" / "ending soon" notices, checked while the tab is open.
   useAlertWatcher()
   usePositionWatcher(polyWallet)
@@ -202,7 +211,8 @@ export default function App() {
     }
     setLiveUntil(Date.now() + 3 * 60_000)
     for (const t of refreshTimers.current) clearTimeout(t)
-    refreshTimers.current = [0, 2_000, 5_000, 10_000, 20_000].map((ms) =>
+    // Polymarket's Data API can take up to a minute to show a new position, so keep checking a while.
+    refreshTimers.current = [0, 2_000, 5_000, 10_000, 20_000, 35_000, 50_000, 70_000, 90_000].map((ms) =>
       setTimeout(() => {
         // Every on-chain balance read, not only the two above (e.g. the top-up's source-chain balance).
         void queryClient.invalidateQueries({ queryKey: ['readContract'] })
@@ -334,7 +344,7 @@ export default function App() {
   }
 
   async function toggleOneClick() {
-    if (!client || !polyWallet || !address) return
+    if (!client || !polyWallet || !address || oneClickCooling) return
     setError('')
     setOneClickBusy(true)
     try {
@@ -344,12 +354,17 @@ export default function App() {
         const key = lib.loadSessionKey(address, polyWallet)
         if (key) await lib.disableOneClickTrading(client, address, polyWallet, key)
         setOneClick(null)
+        coolDown()
       } else {
         const { key, client: sessionClient } = await lib.enableOneClickTrading(client, address, polyWallet)
         setOneClick({ client: sessionClient, validUntil: key.validUntil, address: key.address })
       }
     } catch (e) {
+      console.warn('[yaynay] 1-click toggle failed:', e)
+      if (/still processing your previous action/i.test(e instanceof Error ? e.message : '')) coolDown()
+      // The page banner can be scrolled out of view from the wallet card, so also raise a toast.
       setError(friendlyError(e))
+      toast({ kind: 'error', title: oneClick ? 'Could not turn off 1-click trading' : 'Could not turn on 1-click trading', detail: friendlyError(e) })
     } finally {
       setOneClickBusy(false)
     }
@@ -470,6 +485,7 @@ export default function App() {
                 side={route.side}
                 client={tradingReady ? client : null}
                 tradeClient={tradingReady ? (oneClick?.client ?? null) : null}
+                oneClick={tradingReady && ONE_CLICK_TRADING ? { enabled: !!oneClick, busy: oneClickBusy || oneClickCooling, toggle: toggleOneClick } : undefined}
                 canBuy={access === 'open'}
                 blocker={blocker}
                 pusdBalance={pusd}
@@ -578,6 +594,12 @@ export default function App() {
                           <div className="eyebrow">Custody</div>
                           <div className="v">Non-custodial · you sign</div>
                         </div>
+                        {ONE_CLICK_TRADING && (
+                          <div className="wide">
+                            <div className="eyebrow">Trading</div>
+                            <div className="v">⚡ 1-click · no pop-ups</div>
+                          </div>
+                        )}
                       </div>
                     </section>
                   )
@@ -627,7 +649,7 @@ export default function App() {
               initialDir={route.dir}
               oneClick={
                 tradingReady && ONE_CLICK_TRADING
-                  ? { enabled: !!oneClick, validUntil: oneClick?.validUntil, busy: oneClickBusy, toggle: toggleOneClick }
+                  ? { enabled: !!oneClick, validUntil: oneClick?.validUntil, busy: oneClickBusy || oneClickCooling, cooling: oneClickCooling, toggle: toggleOneClick }
                   : undefined
               }
             />

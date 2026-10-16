@@ -1,6 +1,7 @@
+import { addPendingFill } from '../lib/pendingFills'
 import { useEffect, useRef, useState } from 'react'
 import { roundToTick, type Outcome } from '../lib/markets'
-import { fetchAsks, fetchFeeParams, quoteBuy, type FeeParams, type Level } from '../lib/quote'
+import { fetchAsks, fetchFeeParams, maxAffordableSpend, quoteBuy, type FeeParams, type Level } from '../lib/quote'
 import type { PolyClient } from '../lib/polyAccount'
 import { ensureApiSession } from '../lib/apiSession'
 import type { Pick } from './EventCard'
@@ -38,6 +39,8 @@ export function TradePanel(props: {
   /** 'drawer' slides over the page as a dialog; 'dock' sits inside the market page. */
   variant?: 'drawer' | 'dock'
   onOutcomeChange?: (outcome: Outcome) => void
+  /** 1-click trading switch, when the feature is available; offered quietly under the buy button. */
+  oneClick?: { enabled: boolean; busy: boolean; toggle: () => void }
 }) {
   const { event, market } = props.pick
   const dock = props.variant === 'dock'
@@ -155,6 +158,18 @@ export function TradePanel(props: {
         setStatus({ text, kind: 'info' }),
       )
       const summary = `Bought ${Number(res.takingAmount).toFixed(2)} ${outcome.name} shares for $${Number(res.makingAmount).toFixed(2)}.`
+      if (Number(res.takingAmount) > 0) {
+        // Shown on the market page at once; Polymarket's position data catches up within about a minute.
+        addPendingFill({
+          asset: outcome.tokenId,
+          conditionId: market.conditionId,
+          outcome: outcome.name,
+          title: market.question,
+          shares: Number(res.takingAmount),
+          cost: Number(res.makingAmount),
+          at: Date.now(),
+        })
+      }
       setStatus({ text: summary, kind: 'ok' })
       const txHash = res.transactionsHashes?.[0]
       toast({
@@ -198,7 +213,15 @@ export function TradePanel(props: {
             <div className="row">
               <span>Amount (pUSD)</span>
               {props.pusdBalance !== null && (
-                <button className="link" onClick={() => setAmount(String(Math.floor(Number(props.pusdBalance) * 100) / 100))}>
+                <button
+                  className="link"
+                  title="Fill the most you can spend, leaving room for Polymarket's fee"
+                  onClick={() => {
+                    const balance = Math.floor(Number(props.pusdBalance) * 100) / 100
+                    const max = book?.tokenId === outcome.tokenId ? maxAffordableSpend(book.asks, balance, book.fee) : balance
+                    setAmount(String(max))
+                  }}
+                >
                   Balance {Number(props.pusdBalance).toFixed(2)}
                 </button>
               )}
@@ -300,10 +323,19 @@ export function TradePanel(props: {
             >
               {busy
                 ? 'Working…'
-                : quote
-                  ? `Buy ${outcome.name} · $${(quote.filledUsd + quote.fee).toFixed(2)}`
-                  : `Buy ${outcome.name}`}
+                : `${props.tradeClient ? '⚡ ' : ''}${quote ? `Buy ${outcome.name} · $${(quote.filledUsd + quote.fee).toFixed(2)}` : `Buy ${outcome.name}`}`}
             </button>
+          )}
+
+          {props.oneClick && !props.oneClick.enabled && props.client && !props.blocker && (
+            <div className="oneclick-hint">
+              <span>
+                <span aria-hidden="true">⚡</span> Skip the wallet pop-up on every trade.
+              </span>
+              <button type="button" className="link" disabled={props.oneClick.busy} onClick={props.oneClick.toggle}>
+                {props.oneClick.busy ? 'Turning on…' : 'Turn on 1-click'}
+              </button>
+            </div>
           )}
 
           {status && (
@@ -325,8 +357,7 @@ export function TradePanel(props: {
             </details>
           )}
           <p className="muted">
-            Market order (fill-and-kill) capped 2 ticks above the current book, so you never pay more than shown. Signed in
-            your wallet and routed to Polymarket with the {BRAND.name} builder code, which attributes the volume to us and
+            Market order (fill-and-kill) capped 2 ticks above the current book, so you never pay more than shown. {props.tradeClient ? 'Signed with your 1-click key (trading only, cannot withdraw)' : 'Signed in your wallet'} and routed to Polymarket with the {BRAND.name} builder code, which attributes the volume to us and
             does not change your price. {BRAND.name} charges no fee.
           </p>
         </div>

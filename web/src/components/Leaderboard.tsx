@@ -226,12 +226,15 @@ export function Leaderboard({ polyWallet }: { polyWallet: string | null }) {
                 const mine = polyWallet?.toLowerCase() === l.wallet
                 return (
                   <li key={l.wallet} className={mine ? 'mine' : undefined}>
-                    <a href={routeHref({ name: 'profile', wallet: l.wallet })}>
+                    {/* The name link stretches over the whole row, so the X link inside stays a separate link. */}
+                    <div className="lb-row">
                       <span className="lb-rank num">{l.rank}</span>
                       <span className="lb-who">
                         <CandleSignature address={l.wallet} size={34} />
                         <span className="lb-name">
-                          <b>{l.name}</b>
+                          <a className="lb-row-link" href={routeHref({ name: 'profile', wallet: l.wallet })}>
+                            {l.name}
+                          </a>
                           {mine && <span className="lb-you">You</span>}
                           <Badges l={l} />
                         </span>
@@ -247,7 +250,7 @@ export function Leaderboard({ polyWallet }: { polyWallet: string | null }) {
                       <span className={`lb-alt num ${sort === 'VOLUME' ? (up ? 'up' : 'down') : ''}`}>
                         {sort === 'PNL' ? compactUsd(l.volume) : signed(l.pnl)}
                       </span>
-                    </a>
+                    </div>
                   </li>
                 )
               })}

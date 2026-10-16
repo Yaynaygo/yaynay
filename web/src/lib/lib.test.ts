@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { quoteBuy } from './quote'
+import { maxAffordableSpend, quoteBuy } from './quote'
 import { classify } from './geoblock'
 import { roundToTick } from './markets'
 
@@ -140,5 +140,22 @@ describe('sellableShares', () => {
     expect(sellableShares(5.29)).toBe(5.29)
     expect(sellableShares(6.024096)).toBe(6.02)
     expect(sellableShares(0.009)).toBe(0)
+  })
+})
+
+describe('maxAffordableSpend', () => {
+  const asks = [{ price: 0.767, size: 1000 }]
+  const fee = { rate: 0.07, exponent: 1 }
+  it('leaves room for the fee', () => {
+    const spend = maxAffordableSpend(asks, 3.24, fee)
+    const q = quoteBuy(asks, spend, fee)!
+    expect(spend).toBeLessThan(3.24)
+    expect(q.filledUsd + q.fee).toBeLessThanOrEqual(3.24)
+    // One more cent would not fit.
+    const over = quoteBuy(asks, spend + 0.01, fee)!
+    expect(over.filledUsd + over.fee).toBeGreaterThan(3.24)
+  })
+  it('is zero with no balance', () => {
+    expect(maxAffordableSpend(asks, 0, fee)).toBe(0)
   })
 })
