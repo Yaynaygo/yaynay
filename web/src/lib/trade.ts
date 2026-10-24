@@ -2,6 +2,7 @@ import { AssetType, OrderSide, production } from '@polymarket/client'
 import { updateBalanceAllowance } from '@polymarket/client/actions'
 import { BUILDER_CODE, HAS_BUILDER_CODE } from '../config'
 import type { PolyClient } from './polyAccount'
+import type { ProtocolVersion } from './protocol'
 
 // Polymarket's production contract addresses, as shipped in the SDK. The public type hides the
 // field, but it is present at runtime (it is what the SDK itself uses).
@@ -75,7 +76,11 @@ async function withBalanceSync(
       const handle =
         sync.assetType === AssetType.COLLATERAL
           ? await client.approveErc20({ amount: 'max', spenderAddress: spender, tokenAddress: CONTRACTS.collateralToken })
-          : await client.approveErc1155ForAll({ operatorAddress: spender, tokenAddress: CONTRACTS.conditionalTokens })
+          : await client.approveErc1155ForAll({
+              operatorAddress: spender,
+              // V2 positions live in the PositionManager, V1 positions in the CTF contract.
+              tokenAddress: sync.assetType === AssetType.CONDITIONAL_V2 ? CONTRACTS.positionManager : CONTRACTS.conditionalTokens,
+            })
       await handle.wait()
       onStatus?.('Approved. Placing your order…')
     }
@@ -133,13 +138,13 @@ export async function buy(
 /** Market sell of `shares`, filling only at `minPrice` or better. Allowed for close-only users. */
 export async function sell(
   signers: TradeSigners,
-  params: { tokenId: string; shares: string; minPrice: string },
+  params: { tokenId: string; shares: string; minPrice: string; version?: ProtocolVersion },
   onStatus?: (text: string) => void,
 ) {
   const client = signers.trade
   const response = await withBalanceSync(
     signers,
-    { assetType: AssetType.CONDITIONAL, assetId: params.tokenId },
+    { assetType: params.version === 'v2' ? AssetType.CONDITIONAL_V2 : AssetType.CONDITIONAL, assetId: params.tokenId },
     () =>
       client.placeMarketOrder({
         assetId: params.tokenId,
@@ -159,7 +164,7 @@ export async function redeem(client: PolyClient, conditionId: string) {
     const handle = await client.redeemPositions({ conditionId })
     return await handle.wait()
   } catch (e) {
-    // @polymarket/client 0.12.0 cannot always look up closed markets (Polymarket/ts-sdk#405).
+    // Older @polymarket/client releases could not always look up closed markets (Polymarket/ts-sdk#405).
     if (e instanceof Error && /No market found/i.test(e.message)) {
       throw new Error(
         "Polymarket's SDK could not find this closed market (a known issue). Your winnings are safe: " +

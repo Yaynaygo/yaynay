@@ -56,7 +56,7 @@ flowchart LR
 ```
 
 - **Deposit.** You sign an approve and a burn on Arc (CCTP domain 26) with [Circle App Kit](https://docs.arc.io/app-kit.md). Circle's Forwarding Service mints on Polygon straight into your Polymarket deposit address, so you need no POL.
-- **Trade.** Orders are signed in your browser with `@polymarket/client` and carry the YayNay builder code. That attributes the volume to us and doesn't change your price.
+- **Trade.** Orders are signed in your browser with the unified `@polymarket/client` SDK and carry the YayNay builder code. That attributes the volume to us and doesn't change your price. Polymarket Protocol V2 markets are supported: the app trades each market under the IDs its version requires.
 - **Withdraw.** pUSD goes gaslessly to Polymarket's bridge, then through Relay to native USDC at your Arc address.
 - **1-click trading (optional).** Your wallet signs one gasless authorization for a Polymarket session key with the CLOB scope only. The key is generated and kept in your browser and signs orders for you, so trades need no wallet pop-up. Turning it off revokes the key on-chain.
 

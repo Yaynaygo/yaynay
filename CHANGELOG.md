@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.0 (2026-10-24)
+
+### Polymarket Protocol V2
+- Markets carry their protocol `version`. V2 markets trade, quote and stream under their V2 position IDs instead of CTF token IDs, and V2 sells check balances as `CONDITIONAL-V2`. A one-time approval fallback for V2 points at the PositionManager.
+- Positions from the Data API, which doesn't report a version, look up their market's version on Gamma before selling (cached; V1 if unknown).
+- No V2 markets are live yet, so nothing changes for current trades; the app is ready when they open.
+
+### Unified SDK and Data API v2
+- `@polymarket/client` 0.12.0 → 0.14.0. Its approval setup also covers the V2 contracts, and redemptions pick the protocol from the market's version.
+- Data API v1 is retired today (2026-10-24). The last v1 calls moved to v2: `/traded` → `/v2/user-stats` and `/value` → `/v2/value`. The v1 leaderboard fallback is gone.
+
+### Perps
+- Preparation only: Perps attribution uses a builder account address rather than our bytes32 code, and needs Polymarket to register us first. A Perps trading view with builder attribution is planned for a later release.
+
 ## v0.2.0 (2026-10-17)
 
 ### ⚡ 1-click trading

@@ -1,9 +1,12 @@
+import { tradingIds, type ProtocolVersion } from './protocol'
 import { CLOB_API, DATA_API, DECIDED_PRICE, GAMMA_API, RECURRING_ROUND_RE } from '../config'
 
 export type Outcome = { name: string; tokenId: string; price: number }
 
 export type Market = {
   id: string
+  /** Polymarket protocol version; V2 markets trade V2 position IDs (in `outcomes[].tokenId`). */
+  version: ProtocolVersion
   question: string
   label: string
   conditionId: string
@@ -42,6 +45,9 @@ type RawMarket = {
   groupItemTitle?: string
   conditionId: string
   clobTokenIds?: string
+  /** Protocol V2 position IDs, used instead of clobTokenIds when `version` is "v2". */
+  positionIds?: string | string[]
+  version?: string
   outcomes?: string
   outcomePrices?: string
   active?: boolean
@@ -87,12 +93,14 @@ function parseList(json: string | undefined): string[] {
 function toMarket(m: RawMarket): Market | null {
   if (!m.active || m.closed || !m.acceptingOrders) return null
   const names = parseList(m.outcomes)
-  const tokens = parseList(m.clobTokenIds)
+  // `tokenId` holds whatever ID this market trades under: the CTF token (V1) or the V2 position ID.
+  const { version, ids: tokens } = tradingIds(m)
   const prices = parseList(m.outcomePrices).map(Number)
   // Polymarket markets are binary; anything else is malformed for our UI.
   if (names.length < 2 || names.length !== tokens.length) return null
   return {
     id: m.id,
+    version,
     question: m.question,
     label: m.groupItemTitle || m.question,
     conditionId: m.conditionId,

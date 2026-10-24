@@ -198,15 +198,8 @@ async function fetchLeaderboardV2(period: Period): Promise<LeaderRow[]> {
   return body.data.map((r) => ({ wallet: r.user_id, name: r.user_name ?? '', rank: Number(r.rank), pnl: Number(r.pnl) }))
 }
 
-// v1 retires on 2026-10-24; only used if v2 fails.
-async function fetchLeaderboardV1(period: Period): Promise<LeaderRow[]> {
-  const res = await fetch(`${DATA_API}/v1/leaderboard?timePeriod=${period.toUpperCase()}&orderBy=PNL&limit=${TOP_N}`)
-  if (!res.ok) throw new Error(`Leaderboard unavailable: ${res.status}`)
-  const rows = (await res.json()) as { rank: string; proxyWallet: string; userName?: string; pnl: number }[]
-  return rows.map((r) => ({ wallet: r.proxyWallet, name: r.userName ?? '', rank: Number(r.rank), pnl: Number(r.pnl) }))
-}
-
-const fetchLeaderboard = (period: Period) => fetchLeaderboardV2(period).catch(() => fetchLeaderboardV1(period))
+// Data API v1 was retired on 2026-10-24, so v2 is the only source.
+const fetchLeaderboard = fetchLeaderboardV2
 
 /** The smart set, cached for 30 minutes in memory and sessionStorage. */
 export function loadSmartSet(): Promise<Trader[]> {

@@ -35,8 +35,10 @@ export async function sellPosition(
     await ctx.onPolygon()
     ctx.onStatus(`Sign the sell order in your wallet (best bid ${q.bestBid}, min ${q.minPrice})…`)
   }
-  const { sell } = await import('./trade')
+  const [{ sell }, { marketVersion }] = await Promise.all([import('./trade'), import('./protocol')])
+  // The Data API doesn't say which protocol a position is on; V2 positions sell with a different asset type.
+  const version = await marketVersion(p.conditionId)
   const signers = { trade: ctx.tradeClient ?? ctx.client, owner: ctx.client, prepareOwner: ctx.onPolygon }
-  const res = await sell(signers, { tokenId: p.asset, shares: String(q.shares), minPrice: q.minPrice }, ctx.onStatus)
+  const res = await sell(signers, { tokenId: p.asset, shares: String(q.shares), minPrice: q.minPrice, version }, ctx.onStatus)
   return { sold: Number(res.makingAmount || q.shares), received: Number(res.takingAmount) || 0 }
 }

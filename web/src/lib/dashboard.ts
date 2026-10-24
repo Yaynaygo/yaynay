@@ -70,20 +70,20 @@ export function drawable(points: PnlPoint[], now = Math.floor(Date.now() / 1000)
   ]
 }
 
-/** Number of distinct markets a wallet has traded. */
+/** Number of distinct markets a wallet has traded (Data API v2 user-stats; unknown wallets count 0). */
 export async function fetchMarketsTraded(wallet: string): Promise<number> {
-  const res = await fetch(`${DATA_API}/traded?user=${wallet}`)
-  if (!res.ok) throw new Error(`Traded count unavailable: ${res.status}`)
-  const body = (await res.json()) as { traded?: number }
-  return body.traded ?? 0
+  const res = await fetch(`${DATA_API}/v2/user-stats?user=${wallet}`)
+  if (!res.ok) throw new Error(`User stats unavailable: ${res.status}`)
+  const body = (await res.json()) as { data?: { trades?: number } | null }
+  return body.data?.trades ?? 0
 }
 
-/** Current value of a wallet's open positions. */
+/** Current value of a wallet's open positions (Data API v2). */
 export async function fetchPositionsValue(wallet: string): Promise<number> {
-  const res = await fetch(`${DATA_API}/value?user=${wallet}`)
+  const res = await fetch(`${DATA_API}/v2/value?user=${wallet}`)
   if (!res.ok) throw new Error(`Value unavailable: ${res.status}`)
-  const body = (await res.json()) as { value?: number }[]
-  return Array.isArray(body) ? (body[0]?.value ?? 0) : 0
+  const body = (await res.json()) as { data?: { value?: number } | null }
+  return body.data?.value ?? 0
 }
 
 // ---------- calling card ----------
